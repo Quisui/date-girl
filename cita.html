@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Una cita conmigo? 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rosa-claro:#ffe4ef;
+    --rosa:#ffb6d2;
+    --rosa-fuerte:#ff6fa8;
+    --rosa-oscuro:#e0457f;
+    --blanco:#fffafc;
+    --texto:#7a2e4f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Fredoka',sans-serif;
+    background:linear-gradient(160deg,#ffe4ef 0%,#ffd0e4 50%,#ffc2dc 100%);
+    color:var(--texto);
+    min-height:100vh;
+    overflow-x:hidden;
+    display:flex;align-items:center;justify-content:center;
+    padding:16px;
+  }
+  /* corazones y patitas flotando de fondo */
+  .flotante{
+    position:fixed;bottom:-60px;font-size:24px;opacity:.7;
+    animation:subir linear forwards;pointer-events:none;z-index:0;
+  }
+  @keyframes subir{
+    to{transform:translateY(-115vh) rotate(360deg);opacity:0}
+  }
+  .tarjeta{
+    position:relative;z-index:1;
+    background:var(--blanco);
+    border:4px dashed var(--rosa);
+    border-radius:36px;
+    box-shadow:0 12px 40px rgba(224,69,127,.25);
+    padding:28px 22px 32px;
+    width:100%;max-width:560px;
+    text-align:center;
+  }
+  .paso{display:none;animation:aparecer .5s ease}
+  .paso.activo{display:block}
+  @keyframes aparecer{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+  .mascotas{display:flex;justify-content:center;gap:14px;margin-bottom:10px}
+  .mascotas svg{width:120px;height:120px;animation:rebote 2s ease-in-out infinite}
+  .mascotas svg:nth-child(2){animation-delay:.4s}
+  @keyframes rebote{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+  h1{font-size:clamp(1.6rem,6vw,2.3rem);color:var(--rosa-oscuro);margin:8px 0 6px;line-height:1.2}
+  p.sub{font-size:1.05rem;margin-bottom:22px}
+
+  .botones{position:relative;display:flex;justify-content:center;align-items:center;gap:18px;min-height:90px;flex-wrap:wrap}
+  button{
+    font-family:inherit;font-weight:700;border:none;cursor:pointer;
+    border-radius:999px;transition:transform .2s, background .2s;
+  }
+  #btnSi{
+    background:var(--rosa-fuerte);color:white;
+    font-size:1.3rem;padding:14px 38px;
+    box-shadow:0 6px 0 var(--rosa-oscuro);
+  }
+  #btnSi:hover{transform:scale(1.08)}
+  #btnNo{
+    background:#fff;color:var(--rosa-oscuro);border:3px solid var(--rosa);
+    font-size:1.1rem;padding:12px 30px;
+    transition:left .25s ease, top .25s ease, transform .2s;
+  }
+  #btnNo.escapando{position:fixed;z-index:50}
+  .mensajeNo{min-height:26px;margin-top:14px;font-size:1rem;color:var(--rosa-oscuro)}
+
+  .opciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0}
+  .opcion{
+    background:var(--rosa-claro);border:3px solid transparent;border-radius:22px;
+    padding:16px 10px;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;
+    font-size:1rem;font-weight:600;color:var(--texto);
+  }
+  .opcion .emoji{display:block;font-size:2.2rem;margin-bottom:6px}
+  .opcion:hover{transform:translateY(-4px) rotate(-1deg)}
+  .opcion.elegida{border-color:var(--rosa-fuerte);background:#ffd3e6}
+
+  .campo{margin:10px 0 4px;text-align:left}
+  .campo label{display:block;font-weight:600;margin:0 0 6px 6px}
+  .campo input,.campo textarea{
+    width:100%;font-family:inherit;font-size:1rem;color:var(--texto);
+    border:3px solid var(--rosa);border-radius:18px;padding:10px 14px;background:#fff;outline:none;
+  }
+  .campo input:focus,.campo textarea:focus{border-color:var(--rosa-fuerte)}
+  .btnPrincipal{
+    background:var(--rosa-fuerte);color:#fff;font-size:1.15rem;padding:12px 34px;margin-top:16px;
+    box-shadow:0 5px 0 var(--rosa-oscuro);
+  }
+  .btnPrincipal:disabled{opacity:.45;cursor:not-allowed}
+  .btnSecundario{
+    background:#fff;color:var(--rosa-oscuro);border:3px solid var(--rosa);
+    font-size:1rem;padding:10px 22px;margin:8px 4px 0;
+  }
+  .resumen{
+    background:var(--rosa-claro);border-radius:22px;padding:16px;margin:16px 0;
+    font-size:1.1rem;line-height:1.7;
+  }
+  .resumen b{color:var(--rosa-oscuro)}
+</style>
+</head>
+<body>
+
+<div class="tarjeta">
+
+  <!-- PASO 1: la pregunta -->
+  <section class="paso activo" id="paso1">
+    <div class="mascotas">
+      <!-- gatito kawaii -->
+      <svg viewBox="0 0 120 120" aria-label="gatito">
+        <polygon points="22,48 30,12 52,36" fill="#fff" stroke="#e0457f" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="98,48 90,12 68,36" fill="#fff" stroke="#e0457f" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="29,40 33,22 44,35" fill="#ffb6d2"/>
+        <polygon points="91,40 87,22 76,35" fill="#ffb6d2"/>
+        <ellipse cx="60" cy="68" rx="44" ry="38" fill="#fff" stroke="#e0457f" stroke-width="3"/>
+        <ellipse cx="42" cy="66" rx="6" ry="8" fill="#5a2a3f"/>
+        <ellipse cx="78" cy="66" rx="6" ry="8" fill="#5a2a3f"/>
+        <circle cx="44" cy="63" r="2.2" fill="#fff"/>
+        <circle cx="80" cy="63" r="2.2" fill="#fff"/>
+        <ellipse cx="32" cy="80" rx="7" ry="4" fill="#ffb6d2"/>
+        <ellipse cx="88" cy="80" rx="7" ry="4" fill="#ffb6d2"/>
+        <path d="M56 76 L60 80 L64 76 Z" fill="#ff6fa8"/>
+        <path d="M60 80 Q55 86 51 82 M60 80 Q65 86 69 82" stroke="#5a2a3f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M18 70 L6 67 M18 76 L6 78 M102 70 L114 67 M102 76 L114 78" stroke="#e0457f" stroke-width="2" stroke-linecap="round"/>
+        <path d="M88 38 c3-6 11-6 11 0 c0 6-11 11-11 11 c0 0-11-5-11-11 c0-6 8-6 11 0z" fill="#ff6fa8"/>
+      </svg>
+      <!-- perrito kawaii -->
+      <svg viewBox="0 0 120 120" aria-label="perrito">
+        <ellipse cx="60" cy="66" rx="42" ry="38" fill="#fff3e6" stroke="#e0457f" stroke-width="3"/>
+        <path d="M24 40 Q8 44 12 78 Q20 86 30 72 Z" fill="#d9a77c" stroke="#e0457f" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M96 40 Q112 44 108 78 Q100 86 90 72 Z" fill="#d9a77c" stroke="#e0457f" stroke-width="3" stroke-linejoin="round"/>
+        <ellipse cx="78" cy="56" rx="12" ry="10" fill="#f0cba8"/>
+        <ellipse cx="44" cy="64" rx="6" ry="8" fill="#5a2a3f"/>
+        <ellipse cx="76" cy="64" rx="6" ry="8" fill="#5a2a3f"/>
+        <circle cx="46" cy="61" r="2.2" fill="#fff"/>
+        <circle cx="78" cy="61" r="2.2" fill="#fff"/>
+        <ellipse cx="34" cy="80" rx="7" ry="4" fill="#ffb6d2"/>
+        <ellipse cx="86" cy="80" rx="7" ry="4" fill="#ffb6d2"/>
+        <ellipse cx="60" cy="76" rx="6" ry="4.5" fill="#5a2a3f"/>
+        <path d="M60 80 Q55 87 50 83 M60 80 Q65 87 70 83" stroke="#5a2a3f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 86 Q60 96 64 86 Z" fill="#ff6fa8"/>
+        <circle cx="36" cy="30" r="5" fill="#ff6fa8"/><circle cx="46" cy="30" r="5" fill="#ff6fa8"/>
+        <circle cx="41" cy="30" r="3" fill="#ffb6d2"/>
+      </svg>
+    </div>
+    <h1>¿Quieres tener una cita conmigo? 🥺💕</h1>
+    <p class="sub">El gatito y el perrito están esperando tu respuesta...</p>
+    <div class="botones">
+      <button id="btnSi">¡Sí! 💖</button>
+      <button id="btnNo">No 🙈</button>
+    </div>
+    <div class="mensajeNo" id="mensajeNo"></div>
+  </section>
+
+  <!-- PASO 2: tipo de cita -->
+  <section class="paso" id="paso2">
+    <h1>¡Yaaay! 🎉🐱🐶</h1>
+    <p class="sub">Ahora elige qué tipo de cita quieres, mi amor:</p>
+    <div class="opciones" id="opciones">
+      <div class="opcion" data-valor="Cine con palomitas"><span class="emoji">🍿</span>Cine con palomitas</div>
+      <div class="opcion" data-valor="Cena romántica"><span class="emoji">🍝</span>Cena romántica</div>
+      <div class="opcion" data-valor="Picnic en el parque"><span class="emoji">🧺</span>Picnic en el parque</div>
+      <div class="opcion" data-valor="Café y postrecito"><span class="emoji">🧁</span>Café y postrecito</div>
+      <div class="opcion" data-valor="Ir por helado"><span class="emoji">🍦</span>Ir por helado</div>
+      <div class="opcion" data-valor="Noche de juegos"><span class="emoji">🎮</span>Noche de juegos</div>
+      <div class="opcion" data-valor="Visitar animalitos"><span class="emoji">🐾</span>Visitar animalitos</div>
+      <div class="opcion" data-valor="Paseo al atardecer"><span class="emoji">🌅</span>Paseo al atardecer</div>
+    </div>
+    <div class="campo">
+      <label for="fecha">📅 ¿Qué día y a qué hora?</label>
+      <input type="datetime-local" id="fecha">
+    </div>
+    <div class="campo">
+      <label for="nota">💌 ¿Algo más que quieras pedir?</label>
+      <textarea id="nota" rows="2" placeholder="Ej: que me lleves flores 🌷"></textarea>
+    </div>
+    <button class="btnPrincipal" id="btnConfirmar" disabled>Confirmar cita 💘</button>
+  </section>
+
+  <!-- PASO 3: resultado -->
+  <section class="paso" id="paso3">
+    <div class="mascotas" id="mascotasFinal"></div>
+    <h1>¡Es una cita! 💞</h1>
+    <div class="resumen" id="resumen"></div>
+    <p class="sub">Te quiero muchísimo 🐱💗🐶</p>
+    <button class="btnSecundario" id="btnDescargar">💾 Guardar recuerdo</button>
+    <a class="btnSecundario" id="btnWhats" target="_blank" rel="noopener"
+       style="display:inline-block;text-decoration:none;border-radius:999px;font-weight:700">📱 Enviármelo por WhatsApp</a>
+  </section>
+
+</div>
+
+<script>
+  // ⚙️ Pon aquí tu número de WhatsApp con código de país, sin + ni espacios (ej: "50212345678").
+  // Si lo dejas vacío, WhatsApp le dejará elegir a quién mandarlo.
+  const MI_WHATSAPP = "";
+
+  // ---------- fondo flotante ----------
+  const decoraciones = ["💖","💕","🐾","🐱","🐶","🌸","✨","💗","🎀"];
+  function crearFlotante(){
+    const el = document.createElement("span");
+    el.className = "flotante";
+    el.textContent = decoraciones[Math.floor(Math.random()*decoraciones.length)];
+    el.style.left = Math.random()*100 + "vw";
+    el.style.fontSize = (18 + Math.random()*22) + "px";
+    el.style.animationDuration = (6 + Math.random()*6) + "s";
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 13000);
+  }
+  setInterval(crearFlotante, 450);
+
+  // ---------- botón NO que huye ----------
+  const btnNo = document.getElementById("btnNo");
+  const btnSi = document.getElementById("btnSi");
+  const mensajeNo = document.getElementById("mensajeNo");
+  const frases = [
+    "¿Segura? 🥺", "¡Piénsalo bien! 😿", "El gatito se va a poner triste 🐱💧",
+    "El perrito está llorando 🐶😭", "¡Ese botón no funciona! 😝", "Nop, intenta con el otro 💕",
+    "Ya casi te atrapa el Sí 😼", "Te prometo helado 🍦", "¡Imposible! 🙈"
+  ];
+  let intentos = 0;
+  let escalaSi = 1;
+
+  function huir(e){
+    if(e) e.preventDefault();
+    intentos++;
+    const margen = 12;
+    const ancho = btnNo.offsetWidth, alto = btnNo.offsetHeight;
+    const maxX = window.innerWidth - ancho - margen;
+    const maxY = window.innerHeight - alto - margen;
+    btnNo.classList.add("escapando");
+    btnNo.style.left = Math.max(margen, Math.random()*maxX) + "px";
+    btnNo.style.top  = Math.max(margen, Math.random()*maxY) + "px";
+    mensajeNo.textContent = frases[(intentos-1) % frases.length];
+    // el Sí crece y el No se encoge un poquito
+    escalaSi = Math.min(escalaSi + 0.12, 2.2);
+    btnSi.style.transform = `scale(${escalaSi})`;
+    btnNo.style.transform = `scale(${Math.max(1 - intentos*0.05, 0.55)})`;
+  }
+  btnNo.addEventListener("mouseenter", huir);
+  btnNo.addEventListener("touchstart", huir, {passive:false});
+  btnNo.addEventListener("click", huir);
+  btnNo.addEventListener("focus", huir);
+
+  function irA(n){
+    document.querySelectorAll(".paso").forEach(p=>p.classList.remove("activo"));
+    document.getElementById("paso"+n).classList.add("activo");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  btnSi.addEventListener("click", ()=>{
+    btnNo.style.display = "none";
+    lluviaDeCorazones();
+    irA(2);
+  });
+
+  // ---------- elegir tipo de cita ----------
+  let eleccion = null;
+  const btnConfirmar = document.getElementById("btnConfirmar");
+  document.querySelectorAll(".opcion").forEach(op=>{
+    op.addEventListener("click", ()=>{
+      document.querySelectorAll(".opcion").forEach(o=>o.classList.remove("elegida"));
+      op.classList.add("elegida");
+      eleccion = op.dataset.valor;
+      btnConfirmar.disabled = false;
+    });
+  });
+
+  let resultado = null;
+  btnConfirmar.addEventListener("click", ()=>{
+    const fechaVal = document.getElementById("fecha").value;
+    const nota = document.getElementById("nota").value.trim();
+    let fechaTexto = "¡Cuando tú quieras! 💕";
+    if(fechaVal){
+      fechaTexto = new Date(fechaVal).toLocaleString("es", {
+        weekday:"long", day:"numeric", month:"long", hour:"2-digit", minute:"2-digit"
+      });
+    }
+    resultado = {
+      respuesta: "¡SÍ! 💖",
+      intentosDeDecirNo: intentos,
+      tipoDeCita: eleccion,
+      fecha: fechaTexto,
+      nota: nota || "(ninguna)",
+      respondidoEl: new Date().toLocaleString("es")
+    };
+
+    // guardar en el navegador
+    try{
+      const historial = JSON.parse(localStorage.getItem("citasKawaii") || "[]");
+      historial.push(resultado);
+      localStorage.setItem("citasKawaii", JSON.stringify(historial));
+    }catch(err){}
+
+    document.getElementById("resumen").innerHTML =
+      `🎀 <b>Cita:</b> ${escapar(resultado.tipoDeCita)}<br>` +
+      `📅 <b>Cuándo:</b> ${escapar(resultado.fecha)}<br>` +
+      `💌 <b>Nota:</b> ${escapar(resultado.nota)}<br>` +
+      `🙈 <b>Veces que intentó decir no:</b> ${resultado.intentosDeDecirNo}`;
+
+    document.getElementById("mascotasFinal").innerHTML =
+      document.querySelector("#paso1 .mascotas").innerHTML;
+
+    const texto = `¡Sí quiero una cita contigo! 💖\n🎀 ${resultado.tipoDeCita}\n📅 ${resultado.fecha}\n💌 ${resultado.nota}`;
+    document.getElementById("btnWhats").href =
+      `https://wa.me/${MI_WHATSAPP}?text=${encodeURIComponent(texto)}`;
+
+    lluviaDeCorazones();
+    irA(3);
+  });
+
+  // ---------- descargar recuerdo ----------
+  document.getElementById("btnDescargar").addEventListener("click", ()=>{
+    if(!resultado) return;
+    const blob = new Blob([JSON.stringify(resultado, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "nuestra-cita.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  function escapar(s){
+    return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  function lluviaDeCorazones(){
+    for(let i=0;i<30;i++) setTimeout(crearFlotante, i*60);
+  }
+</script>
+</body>
+</html>
